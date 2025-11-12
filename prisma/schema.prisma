@@ -1,0 +1,501 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================
+// USER & AUTH
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?   // Nullable for OAuth-only users
+  name          String?
+  image         String?
+
+  // Location for service provider matching
+  city          String?
+  state         String?
+  zipCode       String?
+  latitude      Float?
+  longitude     Float?
+
+  // Account metadata
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLoginAt   DateTime?
+
+  // Relationships
+  pets          Pet[]
+  accounts      Account[]
+  sessions      Session[]
+  reminders     Reminder[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================
+// PETS
+// ============================================
+
+model Pet {
+  id                String    @id @default(cuid())
+  userId            String
+
+  // Basic info
+  name              String
+  species           Species
+  breed             String?
+  breedSecondary    String?   // For mixed breeds
+  isMixedBreed      Boolean   @default(false)
+
+  // AI analysis data
+  breedConfidence   Float?
+  aiAnalysisData    Json?     // Store full AI response
+
+  // Demographics
+  dateOfBirth       DateTime?
+  ageEstimateMonths Int?
+  gender            Gender?
+  isSpayedNeutered  Boolean?
+
+  // Physical
+  weightLbs         Float?
+  weightLastUpdated DateTime?
+  sizeCategory      SizeCategory?
+
+  // Other
+  microchipNumber   String?
+  specialConditions String?   @db.Text
+  isIndoor          Boolean?  // For cats
+
+  // Photos
+  profilePhotoUrl   String?
+  photos            PetPhoto[]
+
+  // Metadata
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relationships
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vaccinations      Vaccination[]
+  healthRecords     HealthRecord[]
+  medications       Medication[]
+  weightRecords     WeightRecord[]
+  documents         Document[]
+  dietPlan          DietPlan?
+
+  @@map("pets")
+}
+
+enum Species {
+  DOG
+  CAT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum SizeCategory {
+  SMALL
+  MEDIUM
+  LARGE
+  EXTRA_LARGE
+}
+
+model PetPhoto {
+  id          String   @id @default(cuid())
+  petId       String
+  url         String
+  thumbnailUrl String?
+  fileSize    Int
+  width       Int?
+  height      Int?
+  isPrimary   Boolean  @default(false)
+  uploadedAt  DateTime @default(now())
+
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("pet_photos")
+}
+
+// ============================================
+// HEALTH MANAGEMENT
+// ============================================
+
+model Vaccination {
+  id                String    @id @default(cuid())
+  petId             String
+
+  vaccineName       String
+  dateAdministered  DateTime
+  nextDueDate       DateTime?
+
+  // Vet info
+  clinicName        String?
+  veterinarianName  String?
+  lotNumber         String?
+
+  // Documentation
+  certificateUrl    String?
+  reactionNotes     String?   @db.Text
+
+  // Status
+  isCompleted       Boolean   @default(true)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("vaccinations")
+}
+
+model HealthRecord {
+  id              String        @id @default(cuid())
+  petId           String
+
+  recordType      RecordType
+  eventDate       DateTime
+
+  // Vet info
+  clinicName      String?
+  veterinarianName String?
+
+  // Medical details
+  diagnosis       String?
+  description     String?       @db.Text
+  treatment       String?       @db.Text
+
+  // Follow-up
+  followUpRequired Boolean      @default(false)
+  followUpDate    DateTime?
+
+  // Cost tracking
+  cost            Float?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  pet             Pet           @relation(fields: [petId], references: [id], onDelete: Cascade)
+  documents       Document[]
+
+  @@map("health_records")
+}
+
+enum RecordType {
+  ILLNESS
+  INJURY
+  SURGERY
+  TEST
+  CHECKUP
+  EMERGENCY
+  CONDITION
+}
+
+model Medication {
+  id              String          @id @default(cuid())
+  petId           String
+
+  medicationName  String
+  dosageAmount    Float
+  dosageUnit      String
+
+  frequency       String          // "daily", "twice_daily", "three_times_daily"
+  frequencyTimes  String[]        // ["08:00", "20:00"]
+
+  startDate       DateTime
+  endDate         DateTime?
+
+  route           String?         // "oral", "topical", "injection"
+  instructions    String?         @db.Text
+
+  // Prescription info
+  prescribingVet  String?
+  refillPharmacy  String?
+
+  isActive        Boolean         @default(true)
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  pet             Pet             @relation(fields: [petId], references: [id], onDelete: Cascade)
+  logs            MedicationLog[]
+
+  @@map("medications")
+}
+
+model MedicationLog {
+  id             String      @id @default(cuid())
+  medicationId   String
+
+  scheduledTime  DateTime
+  actualTime     DateTime?
+  status         LogStatus   @default(PENDING)
+
+  givenBy        String?
+  notes          String?     @db.Text
+
+  createdAt      DateTime    @default(now())
+
+  medication     Medication  @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+
+  @@map("medication_logs")
+}
+
+enum LogStatus {
+  PENDING
+  GIVEN
+  SKIPPED
+  MISSED
+}
+
+model WeightRecord {
+  id              String         @id @default(cuid())
+  petId           String
+
+  weightLbs       Float
+  measurementDate DateTime
+  method          MeasurementMethod @default(HOME_SCALE)
+  notes           String?        @db.Text
+
+  createdAt       DateTime       @default(now())
+
+  pet             Pet            @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("weight_records")
+}
+
+enum MeasurementMethod {
+  VET_SCALE
+  HOME_SCALE
+  ESTIMATED
+}
+
+model Document {
+  id              String        @id @default(cuid())
+  petId           String
+
+  documentType    DocumentType
+  fileName        String
+  fileUrl         String
+  thumbnailUrl    String?
+
+  fileSize        Int
+  mimeType        String
+
+  // Optional linking to specific records
+  healthRecordId  String?
+
+  // Organization
+  tags            String[]
+
+  uploadedAt      DateTime      @default(now())
+
+  pet             Pet           @relation(fields: [petId], references: [id], onDelete: Cascade)
+  healthRecord    HealthRecord? @relation(fields: [healthRecordId], references: [id])
+
+  @@map("documents")
+}
+
+enum DocumentType {
+  VACCINATION_CERT
+  LAB_RESULT
+  XRAY
+  INVOICE
+  INSURANCE
+  OTHER
+}
+
+// ============================================
+// DIET & NUTRITION
+// ============================================
+
+model DietPlan {
+  id                    String   @id @default(cuid())
+  petId                 String   @unique
+
+  // Caloric needs
+  dailyCalories         Int
+
+  // Feeding schedule
+  mealsPerDay           Int
+  feedingTimes          String[]  // ["08:00", "18:00"]
+  portionPerMeal        String    // "1.5 cups" or "200g"
+
+  // Recommendations
+  foodType              String    // "dry", "wet", "raw", "homemade"
+  proteinSource         String?   // "chicken", "beef", "fish"
+  specialDiet           String?   // "grain-free", "limited ingredient"
+
+  // Generated recommendations
+  recommendations       String    @db.Text
+
+  // AI generation
+  generatedByAI         Boolean   @default(true)
+  aiPromptUsed          String?   @db.Text
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  pet                   Pet       @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("diet_plans")
+}
+
+// ============================================
+// REMINDERS
+// ============================================
+
+model Reminder {
+  id              String        @id @default(cuid())
+  userId          String
+  petId           String?       // Null for user-level reminders
+
+  reminderType    ReminderType
+  title           String
+  description     String?       @db.Text
+
+  reminderDate    DateTime
+  reminderTime    String?       // "09:00"
+
+  // Status
+  isCompleted     Boolean       @default(false)
+  completedAt     DateTime?
+
+  // Notification
+  notificationSent Boolean      @default(false)
+  lastNotifiedAt   DateTime?
+
+  // Recurrence (future)
+  isRecurring     Boolean       @default(false)
+  recurrenceRule  String?       // RRULE format
+
+  // Linking to specific records
+  linkedRecordId  String?       // Can link to Vaccination, Medication, etc.
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("reminders")
+}
+
+enum ReminderType {
+  VACCINATION
+  MEDICATION
+  WEIGHT_CHECK
+  VET_APPOINTMENT
+  GROOMING
+  CUSTOM
+}
+
+// ============================================
+// SERVICE PROVIDERS
+// ============================================
+
+model ServiceProvider {
+  id              String          @id @default(cuid())
+
+  // Business info
+  businessName    String
+  category        ProviderCategory
+
+  // Contact
+  phone           String?
+  email           String?
+  website         String?
+
+  // Location
+  address         String
+  city            String
+  state           String
+  zipCode         String
+  latitude        Float
+  longitude       Float
+
+  // Services & Details
+  services        String[]        // ["checkups", "surgery", "emergency"]
+  hoursOfOperation Json?          // {monday: "9am-5pm", ...}
+  acceptsSpecies  Species[]       // [DOG, CAT]
+
+  // Media
+  photos          String[]
+
+  // Ratings (initially seeded, later user-generated)
+  averageRating   Float?
+  totalReviews    Int             @default(0)
+
+  // Admin
+  isVerified      Boolean         @default(false)
+  isActive        Boolean         @default(true)
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("service_providers")
+}
+
+enum ProviderCategory {
+  VETERINARIAN
+  EMERGENCY_VET
+  GROOMER
+  TRAINER
+  BOARDER
+  PET_STORE
+  DOG_PARK
+}
