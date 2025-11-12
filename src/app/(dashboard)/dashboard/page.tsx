@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs";
-
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,10 @@ import { PawPrint, Calendar, Heart, Plus } from "lucide-react";
 
 export default async function DashboardPage() {
   const { userId } = auth();
+
+  if (!userId) {
+    redirect("/sign-in");
+  }
 
   const pets = await prisma.pet.findMany({
     where: {
