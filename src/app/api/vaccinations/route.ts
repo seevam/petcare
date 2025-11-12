@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs";
-import { authOptions } from "";
 import { prisma } from "@/lib/prisma";
 import { vaccinationSchema } from "@/lib/validators";
 
@@ -8,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const { userId } = auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -53,7 +52,7 @@ export async function POST(request: Request) {
   try {
     const { userId } = auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 

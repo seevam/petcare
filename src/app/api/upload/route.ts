@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs";
-import { authOptions } from "";
 import { put } from "@vercel/blob";
 
 export async function POST(request: Request) {
   try {
     const { userId } = auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 

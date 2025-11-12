@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs";
-import { authOptions } from "";
 import { prisma } from "@/lib/prisma";
 import { petSchema } from "@/lib/validators";
 
@@ -12,7 +11,7 @@ export async function GET(
   try {
     const { userId } = auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -65,7 +64,7 @@ export async function PATCH(
   try {
     const { userId } = auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -126,7 +125,7 @@ export async function DELETE(
   try {
     const { userId } = auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
