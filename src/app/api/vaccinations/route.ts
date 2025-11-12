@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@clerk/nextjs";
+import { authOptions } from "";
 import { prisma } from "@/lib/prisma";
 import { vaccinationSchema } from "@/lib/validators";
 
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { userId } = auth();
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     const pet = await prisma.pet.findFirst({
       where: {
         id: petId,
-        userId: session.user.id,
+        userId: userId,
       },
     });
 
@@ -51,7 +51,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { userId } = auth();
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     const pet = await prisma.pet.findFirst({
       where: {
         id: validated.petId,
-        userId: session.user.id,
+        userId: userId,
       },
     });
 
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
         if (reminderDate > new Date()) {
           await prisma.reminder.create({
             data: {
-              userId: session.user.id,
+              userId: userId,
               petId: validated.petId,
               reminderType: "VACCINATION",
               title: `${validated.vaccineName} due soon`,

@@ -1,21 +1,20 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@clerk/nextjs";
 import { prisma } from "@/lib/prisma";
 import { petSchema } from "@/lib/validators";
 
 // GET /api/pets - List all user's pets
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { userId } = auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const pets = await prisma.pet.findMany({
       where: {
-        userId: session.user.id,
+        userId,
         isActive: true,
       },
       include: {
@@ -45,9 +44,9 @@ export async function GET(request: Request) {
 // POST /api/pets - Create new pet
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { userId } = auth();
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -57,7 +56,7 @@ export async function POST(request: Request) {
     // Create pet in database
     const pet = await prisma.pet.create({
       data: {
-        userId: session.user.id,
+        userId,
         name: validated.name,
         species: validated.species,
         breed: validated.breed,

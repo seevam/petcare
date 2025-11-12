@@ -13,10 +13,10 @@ export default function HomePage() {
             <span className="text-2xl font-bold text-gray-900">PawCare</span>
           </div>
           <div className="flex items-center space-x-4">
-            <Link href="/login">
-              <Button variant="ghost">Login</Button>
+            <Link href="/sign-in">
+              <Button variant="ghost">Sign In</Button>
             </Link>
-            <Link href="/register">
+            <Link href="/sign-up">
               <Button>Get Started</Button>
             </Link>
           </div>
@@ -35,7 +35,7 @@ export default function HomePage() {
           and find trusted pet services - all in one place.
         </p>
         <div className="flex items-center justify-center space-x-4">
-          <Link href="/register">
+          <Link href="/sign-up">
             <Button size="lg" className="text-lg">
               Start Free Today
             </Button>
@@ -137,7 +137,7 @@ export default function HomePage() {
           <p className="text-xl mb-8 opacity-90">
             Join thousands of pet parents who trust PawCare
           </p>
-          <Link href="/register">
+          <Link href="/sign-up">
             <Button size="lg" variant="secondary" className="text-lg">
               Get Started - It's Free
             </Button>

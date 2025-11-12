@@ -1,20 +1,19 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { currentUser } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { mainNavItems } from "@/constants/navigation";
-import { PawPrint, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { PawPrint } from "lucide-react";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const user = await currentUser();
 
-  if (!session) {
-    redirect("/login");
+  if (!user) {
+    redirect("/sign-in");
   }
 
   return (
@@ -46,32 +45,26 @@ export default async function DashboardLayout({
 
           {/* User section */}
           <div className="border-t p-4">
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                <span className="text-sm font-semibold text-green-600">
-                  {session.user?.name?.charAt(0).toUpperCase() || "U"}
-                </span>
-              </div>
+            <div className="flex items-center space-x-3">
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "h-10 w-10",
+                  },
+                }}
+                afterSignOutUrl="/"
+              />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">
-                  {session.user?.name || "User"}
+                  {user.firstName && user.lastName
+                    ? `${user.firstName} ${user.lastName}`
+                    : user.firstName || "User"}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
-                  {session.user?.email}
+                  {user.emailAddresses[0].emailAddress}
                 </p>
               </div>
             </div>
-            <form action="/api/auth/signout" method="POST">
-              <Button
-                type="submit"
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </Button>
-            </form>
           </div>
         </div>
       </aside>

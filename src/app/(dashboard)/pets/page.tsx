@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@clerk/nextjs";
+
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, PawPrint } from "lucide-react";
 
 export default async function PetsPage() {
-  const session = await getServerSession(authOptions);
+  const { userId } = auth();
 
   const pets = await prisma.pet.findMany({
     where: {
