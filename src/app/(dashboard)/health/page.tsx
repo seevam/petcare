@@ -114,34 +114,34 @@ export default function HealthRecordsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Header - Mobile Responsive */}
       <div className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center space-x-3 sm:space-x-4">
               <Link href="/pets">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back
+                <Button variant="ghost" size="sm" className="h-10 w-10 p-0 sm:h-auto sm:w-auto sm:px-4">
+                  <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Back</span>
                 </Button>
               </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
                   {pet.name}'s Health Records
                 </h1>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">
                   {pet.breed} • Last vet visit: 2 weeks ago
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                <Download className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Export</span>
               </Button>
-              <Button onClick={() => setIsAddModalOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Record
+              <Button onClick={() => setIsAddModalOpen(true)} className="flex-1 sm:flex-none">
+                <Plus className="h-4 w-4 sm:mr-2" />
+                <span className="sm:inline">Add</span>
               </Button>
             </div>
           </div>
@@ -239,13 +239,13 @@ export default function HealthRecordsPage() {
           </Card>
         </div>
 
-        {/* Main Content Area */}
+        {/* Main Content Area - Mobile Responsive */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <CardTitle>Health History</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-xl sm:text-2xl">Health History</CardTitle>
+                <CardDescription className="text-sm mt-1">
                   View and manage all health records for {pet.name}
                 </CardDescription>
               </div>
@@ -253,6 +253,7 @@ export default function HealthRecordsPage() {
                 <Button
                   variant={view === "categories" ? "default" : "outline"}
                   size="sm"
+                  className="flex-1 sm:flex-none"
                   onClick={() => setView("categories")}
                 >
                   Categories
@@ -260,6 +261,7 @@ export default function HealthRecordsPage() {
                 <Button
                   variant={view === "timeline" ? "default" : "outline"}
                   size="sm"
+                  className="flex-1 sm:flex-none"
                   onClick={() => setView("timeline")}
                 >
                   Timeline
@@ -775,7 +777,7 @@ function AddRecordModal({ isOpen, onClose, petId, petName, record }: AddRecordMo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto sm:rounded-lg w-full sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {record ? "Edit Health Record" : "Add Health Record"}
@@ -831,7 +833,7 @@ function AddRecordModal({ isOpen, onClose, petId, petName, record }: AddRecordMo
           {/* Vaccination Fields */}
           {recordType === "vaccination" && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="vaccineName">Vaccine Name *</Label>
                   <Input
@@ -852,7 +854,7 @@ function AddRecordModal({ isOpen, onClose, petId, petName, record }: AddRecordMo
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="vaccineDate">Date Administered *</Label>
                   <Input
@@ -879,7 +881,7 @@ function AddRecordModal({ isOpen, onClose, petId, petName, record }: AddRecordMo
           {/* Vet Visit Fields */}
           {recordType === "vet-visit" && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="visitDate">Visit Date *</Label>
                   <Input
@@ -946,7 +948,7 @@ function AddRecordModal({ isOpen, onClose, petId, petName, record }: AddRecordMo
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="dosage">Dosage *</Label>
                   <Input
@@ -976,7 +978,7 @@ function AddRecordModal({ isOpen, onClose, petId, petName, record }: AddRecordMo
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="startDate">Start Date *</Label>
                   <Input
@@ -1012,7 +1014,7 @@ function AddRecordModal({ isOpen, onClose, petId, petName, record }: AddRecordMo
           {/* Weight Fields */}
           {recordType === "weight" && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="weight">Weight *</Label>
                   <div className="flex space-x-2">
@@ -1059,7 +1061,7 @@ function AddRecordModal({ isOpen, onClose, petId, petName, record }: AddRecordMo
             <h4 className="font-semibold text-sm text-gray-900">
               Clinic/Veterinarian Information
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="veterinarianName">Veterinarian Name</Label>
                 <Input
@@ -1079,7 +1081,7 @@ function AddRecordModal({ isOpen, onClose, petId, petName, record }: AddRecordMo
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="clinicPhone">Clinic Phone</Label>
                 <Input

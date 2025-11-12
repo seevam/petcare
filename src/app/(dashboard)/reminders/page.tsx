@@ -160,10 +160,10 @@ export default function RemindersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex gap-6">
-          {/* Sidebar */}
-          <aside className="w-64 flex-shrink-0">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+          {/* Sidebar - Mobile Responsive: Hidden on mobile, shown as sidebar on lg+ */}
+          <aside className="hidden lg:block lg:w-64 lg:flex-shrink-0">
             <Card>
               <CardContent className="p-4">
                 <Button
@@ -250,10 +250,51 @@ export default function RemindersPage() {
             </Card>
           </aside>
 
-          {/* Main Content */}
+          {/* Main Content - Mobile Responsive */}
           <main className="flex-1">
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {/* Mobile Filter Dropdown - Visible only on mobile */}
+            <div className="lg:hidden mb-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-gray-900">Filter Reminders</h3>
+                    <Button
+                      size="sm"
+                      onClick={() => setIsNewReminderOpen(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      New
+                    </Button>
+                  </div>
+                  <Select value={selectedFilter} onValueChange={setSelectedFilter}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Reminders ({reminders.filter(r => !completedReminders.has(r.id)).length})</SelectItem>
+                      <SelectItem value="today">Today ({filterReminders([...reminders]).filter(r => {
+                        const today = new Date();
+                        const dueDate = new Date(r.dueDate);
+                        return dueDate.toDateString() === today.toDateString();
+                      }).length})</SelectItem>
+                      <SelectItem value="upcoming">Upcoming ({reminders.filter(r => {
+                        const today = new Date();
+                        const dueDate = new Date(r.dueDate);
+                        return dueDate > today && !completedReminders.has(r.id);
+                      }).length})</SelectItem>
+                      <SelectItem value="completed">Completed ({completedReminders.size})</SelectItem>
+                      <SelectItem value="vaccination">Vaccinations ({reminders.filter(r => r.type === "vaccination").length})</SelectItem>
+                      <SelectItem value="medication">Medications ({reminders.filter(r => r.type === "medication").length})</SelectItem>
+                      <SelectItem value="appointment">Appointments ({reminders.filter(r => r.type === "appointment").length})</SelectItem>
+                      <SelectItem value="grooming">Grooming ({reminders.filter(r => r.type === "grooming").length})</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="mb-4 sm:mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 {selectedFilter === "all" && "All Reminders"}
                 {selectedFilter === "today" && "Today's Reminders"}
                 {selectedFilter === "upcoming" && "Upcoming Reminders"}
@@ -263,7 +304,7 @@ export default function RemindersPage() {
                 {selectedFilter === "appointment" && "Appointment Reminders"}
                 {selectedFilter === "grooming" && "Grooming Reminders"}
               </h1>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 {filteredReminders.length} {filteredReminders.length === 1 ? "reminder" : "reminders"}
               </p>
             </div>
@@ -364,15 +405,15 @@ function ReminderCard({ reminder, isCompleted, onToggleComplete }: ReminderCardP
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "vaccination":
-        return <Syringe className="h-5 w-5 text-blue-600" />;
+        return <Syringe className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />;
       case "medication":
-        return <Pill className="h-5 w-5 text-green-600" />;
+        return <Pill className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />;
       case "appointment":
-        return <Stethoscope className="h-5 w-5 text-purple-600" />;
+        return <Stethoscope className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />;
       case "grooming":
-        return <Scissors className="h-5 w-5 text-orange-600" />;
+        return <Scissors className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />;
       default:
-        return <Calendar className="h-5 w-5 text-gray-600" />;
+        return <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />;
     }
   };
 
@@ -410,13 +451,13 @@ function ReminderCard({ reminder, isCompleted, onToggleComplete }: ReminderCardP
 
   return (
     <Card className={`${getPriorityColor(reminder.priority)} ${isCompleted ? "opacity-60" : ""} hover:shadow-md transition-shadow`}>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-4 flex-1">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start space-x-2 sm:space-x-4 flex-1 min-w-0">
             {/* Checkbox */}
             <button
               onClick={onToggleComplete}
-              className={`mt-1 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+              className={`mt-0.5 sm:mt-1 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
                 isCompleted
                   ? "bg-green-600 border-green-600"
                   : "border-gray-300 hover:border-green-600"
@@ -425,41 +466,41 @@ function ReminderCard({ reminder, isCompleted, onToggleComplete }: ReminderCardP
               {isCompleted && <Check className="h-4 w-4 text-white" />}
             </button>
 
-            {/* Content */}
+            {/* Content - Mobile Responsive */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
                 {getTypeIcon(reminder.type)}
-                <h3 className={`font-semibold text-gray-900 ${isCompleted ? "line-through" : ""}`}>
+                <h3 className={`text-sm sm:text-base font-semibold text-gray-900 truncate ${isCompleted ? "line-through" : ""}`}>
                   {reminder.title}
                 </h3>
               </div>
 
-              <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-xs sm:text-sm text-gray-600 mb-2">
                 <div className="flex items-center space-x-1">
-                  <PawPrint className="h-4 w-4" />
-                  <span>{reminder.petName}</span>
+                  <PawPrint className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="truncate">{reminder.petName}</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>{formatDate(reminder.dueDate)} at {reminder.dueTime}</span>
+                  <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="truncate">{formatDate(reminder.dueDate)} at {reminder.dueTime}</span>
                 </div>
                 {reminder.recurring !== "none" && (
                   <div className="flex items-center space-x-1">
-                    <Repeat className="h-4 w-4" />
+                    <Repeat className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span className="capitalize">{reminder.recurring}</span>
                   </div>
                 )}
               </div>
 
-              <p className="text-sm text-gray-700">{reminder.description}</p>
+              <p className="text-xs sm:text-sm text-gray-700 line-clamp-2">{reminder.description}</p>
 
               {!isCompleted && (
-                <div className="flex items-center space-x-2 mt-3">
-                  <Button size="sm" variant="outline">
-                    <Clock className="h-3 w-3 mr-1" />
-                    Snooze
+                <div className="flex items-center space-x-2 mt-2 sm:mt-3">
+                  <Button size="sm" variant="outline" className="h-8 text-xs">
+                    <Clock className="h-3 w-3 sm:mr-1" />
+                    <span className="hidden sm:inline">Snooze</span>
                   </Button>
-                  <Button size="sm" variant="ghost">
+                  <Button size="sm" variant="ghost" className="h-8 text-xs">
                     Edit
                   </Button>
                 </div>
@@ -467,10 +508,10 @@ function ReminderCard({ reminder, isCompleted, onToggleComplete }: ReminderCardP
             </div>
           </div>
 
-          {/* Priority Indicator */}
-          <div className="ml-4">
+          {/* Priority Indicator - Mobile Responsive */}
+          <div className="flex-shrink-0">
             <span
-              className={`px-2 py-1 rounded-full text-xs font-semibold ${
+              className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
                 reminder.priority === "high"
                   ? "bg-red-100 text-red-700"
                   : reminder.priority === "medium"
@@ -516,7 +557,7 @@ function NewReminderModal({ isOpen, onClose }: NewReminderModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-full sm:max-w-2xl sm:rounded-lg">
         <DialogHeader>
           <DialogTitle>Create New Reminder</DialogTitle>
           <DialogDescription>
@@ -574,8 +615,8 @@ function NewReminderModal({ isOpen, onClose }: NewReminderModalProps) {
             />
           </div>
 
-          {/* Date and Time */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Date and Time - Mobile Responsive */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date">Date *</Label>
               <Input
@@ -598,8 +639,8 @@ function NewReminderModal({ isOpen, onClose }: NewReminderModalProps) {
             </div>
           </div>
 
-          {/* Priority and Recurring */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Priority and Recurring - Mobile Responsive */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="priority">Priority</Label>
               <Select

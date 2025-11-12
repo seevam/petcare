@@ -145,21 +145,22 @@ export default function ServicesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Header - Mobile Responsive */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Find Services</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Find Services</h1>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">
                 Discover veterinarians, groomers, trainers, and more near you
               </p>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 self-start sm:self-auto">
               <Button
                 variant={viewMode === "list" ? "default" : "outline"}
                 onClick={() => setViewMode("list")}
                 size="sm"
+                className="flex-1 sm:flex-none"
               >
                 List
               </Button>
@@ -167,14 +168,15 @@ export default function ServicesPage() {
                 variant={viewMode === "map" ? "default" : "outline"}
                 onClick={() => setViewMode("map")}
                 size="sm"
+                className="flex-1 sm:flex-none"
               >
                 Map
               </Button>
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="mt-6 flex gap-3">
+          {/* Search Bar - Mobile Responsive */}
+          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
@@ -182,13 +184,13 @@ export default function ServicesPage() {
                 placeholder="Search for services, providers, or locations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-11"
               />
             </div>
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2"
+              className="flex items-center justify-center space-x-2 h-11"
             >
               <Filter className="h-4 w-4" />
               <span>Filters</span>
@@ -200,7 +202,7 @@ export default function ServicesPage() {
             </Button>
           </div>
 
-          {/* Filters Panel */}
+          {/* Filters Panel - Mobile Responsive */}
           {showFilters && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
               <div className="flex items-center justify-between mb-4">
@@ -219,7 +221,7 @@ export default function ServicesPage() {
                   Clear All
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Service Type</label>
                   <Select
@@ -320,11 +322,11 @@ export default function ServicesPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Results Count */}
-        <div className="mb-6">
-          <p className="text-gray-700">
-            Found <span className="font-semibold">{filteredProviders.length}</span> service providers
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        {/* Results Count - Mobile Responsive */}
+        <div className="mb-4 sm:mb-6">
+          <p className="text-sm sm:text-base text-gray-700">
+            Found <span className="font-semibold">{filteredProviders.length}</span> service {filteredProviders.length === 1 ? "provider" : "providers"}
           </p>
         </div>
 
@@ -407,27 +409,28 @@ interface ProviderCardProps {
 function ProviderCard({ provider, isSaved, onToggleSave }: ProviderCardProps) {
   return (
     <Card className="hover:shadow-lg transition-shadow">
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            {/* Header */}
+            {/* Header - Mobile Responsive */}
             <div className="flex items-start justify-between mb-3">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-1">
+              <div className="flex-1 min-w-0 pr-2">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 truncate">
                   {provider.name}
                 </h3>
-                <div className="flex items-center space-x-3 text-sm">
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium text-xs sm:text-sm whitespace-nowrap">
                     {provider.type}
                   </span>
                   <div className="flex items-center space-x-1">
-                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
                     <span className="font-semibold text-gray-900">{provider.rating}</span>
-                    <span className="text-gray-600">({provider.reviewCount} reviews)</span>
+                    <span className="text-gray-600 hidden sm:inline">({provider.reviewCount} reviews)</span>
+                    <span className="text-gray-600 sm:hidden">({provider.reviewCount})</span>
                   </div>
                   <div className="flex items-center space-x-1 text-gray-600">
-                    <MapPin className="h-4 w-4" />
-                    <span>{provider.distance} mi away</span>
+                    <MapPin className="h-4 w-4 flex-shrink-0" />
+                    <span className="whitespace-nowrap">{provider.distance} mi</span>
                   </div>
                 </div>
               </div>
@@ -435,17 +438,17 @@ function ProviderCard({ provider, isSaved, onToggleSave }: ProviderCardProps) {
                 variant="ghost"
                 size="sm"
                 onClick={onToggleSave}
-                className={isSaved ? "text-red-600" : "text-gray-400"}
+                className={`flex-shrink-0 ${isSaved ? "text-red-600" : "text-gray-400"}`}
               >
                 <Heart className={`h-5 w-5 ${isSaved ? "fill-red-600" : ""}`} />
               </Button>
             </div>
 
             {/* Description */}
-            <p className="text-gray-700 mb-4">{provider.description}</p>
+            <p className="text-sm sm:text-base text-gray-700 mb-4">{provider.description}</p>
 
-            {/* Details Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* Details Grid - Mobile Responsive */}
+            <div className="grid grid-cols-1 gap-4 mb-4">
               <div className="space-y-2">
                 <div className="flex items-start space-x-2 text-sm">
                   <MapPin className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
@@ -497,17 +500,17 @@ function ProviderCard({ provider, isSaved, onToggleSave }: ProviderCardProps) {
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center space-x-3">
-              <Button className="flex-1">
+            {/* Action Buttons - Mobile Responsive */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+              <Button className="flex-1 h-11">
                 <Phone className="h-4 w-4 mr-2" />
                 Call Now
               </Button>
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1 h-11">
                 <Navigation className="h-4 w-4 mr-2" />
                 Directions
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" className="h-11 sm:flex-none">
                 View Details
               </Button>
             </div>
