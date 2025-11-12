@@ -11,7 +11,7 @@ export default async function DashboardPage() {
 
   const pets = await prisma.pet.findMany({
     where: {
-      userId: session?.user?.id,
+      userId,
       isActive: true,
     },
     include: {
@@ -30,7 +30,7 @@ export default async function DashboardPage() {
 
   const upcomingReminders = await prisma.reminder.findMany({
     where: {
-      userId: session?.user?.id,
+      userId,
       isCompleted: false,
       reminderDate: { gte: new Date() },
     },

@@ -11,7 +11,7 @@ export default async function PetsPage() {
 
   const pets = await prisma.pet.findMany({
     where: {
-      userId: session?.user?.id,
+      userId,
       isActive: true,
     },
     include: {
