@@ -251,49 +251,25 @@ export default function RemindersPage() {
           </aside>
 
           {/* Main Content - Mobile Responsive */}
-          <main className="flex-1">
-            {/* Mobile Filter Dropdown - Visible only on mobile */}
-            <div className="lg:hidden mb-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-gray-900">Filter Reminders</h3>
-                    <Button
-                      size="sm"
-                      onClick={() => setIsNewReminderOpen(true)}
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      New
-                    </Button>
-                  </div>
-                  <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Reminders ({reminders.filter(r => !completedReminders.has(r.id)).length})</SelectItem>
-                      <SelectItem value="today">Today ({filterReminders([...reminders]).filter(r => {
-                        const today = new Date();
-                        const dueDate = new Date(r.dueDate);
-                        return dueDate.toDateString() === today.toDateString();
-                      }).length})</SelectItem>
-                      <SelectItem value="upcoming">Upcoming ({reminders.filter(r => {
-                        const today = new Date();
-                        const dueDate = new Date(r.dueDate);
-                        return dueDate > today && !completedReminders.has(r.id);
-                      }).length})</SelectItem>
-                      <SelectItem value="completed">Completed ({completedReminders.size})</SelectItem>
-                      <SelectItem value="vaccination">Vaccinations ({reminders.filter(r => r.type === "vaccination").length})</SelectItem>
-                      <SelectItem value="medication">Medications ({reminders.filter(r => r.type === "medication").length})</SelectItem>
-                      <SelectItem value="appointment">Appointments ({reminders.filter(r => r.type === "appointment").length})</SelectItem>
-                      <SelectItem value="grooming">Grooming ({reminders.filter(r => r.type === "grooming").length})</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </CardContent>
-              </Card>
+          <main className="flex-1 pb-20 lg:pb-0">
+            {/* Mobile Header with New Button - Visible only on mobile */}
+            <div className="lg:hidden mb-4 flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Reminders</h1>
+                <p className="text-sm text-gray-600">
+                  {filteredReminders.length} {filteredReminders.length === 1 ? "reminder" : "reminders"}
+                </p>
+              </div>
+              <Button
+                onClick={() => setIsNewReminderOpen(true)}
+                className="h-11"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                New
+              </Button>
             </div>
 
-            <div className="mb-4 sm:mb-6">
+            <div className="mb-4 sm:mb-6 hidden lg:block">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 {selectedFilter === "all" && "All Reminders"}
                 {selectedFilter === "today" && "Today's Reminders"}
@@ -307,6 +283,20 @@ export default function RemindersPage() {
               <p className="text-sm sm:text-base text-gray-600">
                 {filteredReminders.length} {filteredReminders.length === 1 ? "reminder" : "reminders"}
               </p>
+            </div>
+
+            {/* Mobile current filter heading */}
+            <div className="lg:hidden mb-3">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {selectedFilter === "all" && "All Reminders"}
+                {selectedFilter === "today" && "Today"}
+                {selectedFilter === "upcoming" && "Upcoming"}
+                {selectedFilter === "completed" && "Completed"}
+                {selectedFilter === "vaccination" && "Vaccinations"}
+                {selectedFilter === "medication" && "Medications"}
+                {selectedFilter === "appointment" && "Appointments"}
+                {selectedFilter === "grooming" && "Grooming"}
+              </h2>
             </div>
 
             {filteredReminders.length > 0 ? (
@@ -342,6 +332,79 @@ export default function RemindersPage() {
               </Card>
             )}
           </main>
+        </div>
+
+        {/* Mobile Bottom Navigation - Visible only on mobile */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
+          <div className="grid grid-cols-4 gap-1 p-2">
+            <button
+              onClick={() => setSelectedFilter("all")}
+              className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg transition-colors ${
+                selectedFilter === "all"
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <Calendar className="h-5 w-5 mb-1" />
+              <span className="text-xs font-medium">All</span>
+              <span className="text-xs text-gray-500">
+                {reminders.filter(r => !completedReminders.has(r.id)).length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setSelectedFilter("today")}
+              className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg transition-colors ${
+                selectedFilter === "today"
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <AlertCircle className="h-5 w-5 mb-1" />
+              <span className="text-xs font-medium">Today</span>
+              <span className="text-xs text-gray-500">
+                {filterReminders([...reminders]).filter(r => {
+                  const today = new Date();
+                  const dueDate = new Date(r.dueDate);
+                  return dueDate.toDateString() === today.toDateString();
+                }).length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setSelectedFilter("upcoming")}
+              className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg transition-colors ${
+                selectedFilter === "upcoming"
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <Clock className="h-5 w-5 mb-1" />
+              <span className="text-xs font-medium">Upcoming</span>
+              <span className="text-xs text-gray-500">
+                {reminders.filter(r => {
+                  const today = new Date();
+                  const dueDate = new Date(r.dueDate);
+                  return dueDate > today && !completedReminders.has(r.id);
+                }).length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setSelectedFilter("completed")}
+              className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg transition-colors ${
+                selectedFilter === "completed"
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <Check className="h-5 w-5 mb-1" />
+              <span className="text-xs font-medium">Done</span>
+              <span className="text-xs text-gray-500">
+                {completedReminders.size}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
