@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateDistance } from "@/lib/utils";
+import { ProviderCategory } from "@prisma/client";
 
 export async function GET(request: Request) {
   try {
@@ -9,7 +10,7 @@ export async function GET(request: Request) {
     const latitude = parseFloat(searchParams.get("latitude") || "0");
     const longitude = parseFloat(searchParams.get("longitude") || "0");
     const radius = parseFloat(searchParams.get("radius") || "10");
-    const category = searchParams.get("category") || undefined;
+    const category = searchParams.get("category") as ProviderCategory | null;
     const species = searchParams.get("species") as "DOG" | "CAT" | null;
 
     if (!latitude || !longitude) {
