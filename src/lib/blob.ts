@@ -10,7 +10,6 @@ export async function uploadPetPhoto(file: File, petId: string) {
 
   return {
     url: blob.url,
-    downloadUrl: blob.downloadUrl,
   };
 }
 
@@ -24,7 +23,6 @@ export async function uploadDocument(file: File, petId: string, documentType: st
 
   return {
     url: blob.url,
-    downloadUrl: blob.downloadUrl,
   };
 }
 
