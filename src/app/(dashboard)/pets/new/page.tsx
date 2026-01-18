@@ -63,24 +63,57 @@ export default function AddPetPage() {
   const handleAnalyze = async () => {
     setStep("analyzing");
 
-    // Simulate AI analysis (replace with actual API call)
-    setTimeout(() => {
-      const mockResults = {
-        breed: "Golden Retriever",
-        confidence: 0.95,
-        ageEstimateMonths: 24,
-        estimatedWeight: 65,
-        size: "Large",
-        coatColor: "Golden",
+    try {
+      // Call the actual AI API
+      const response = await fetch("/api/ai/analyze-pet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          imageUrl: photoPreview,
+          species: formData.species,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to analyze pet photo");
+      }
+
+      const analysis = await response.json();
+
+      // Map size category to estimated weight ranges
+      const weightEstimates: Record<string, number> = {
+        SMALL: 15,
+        MEDIUM: 35,
+        LARGE: 65,
+        EXTRA_LARGE: 90,
       };
-      setAiResults(mockResults);
+
+      const results = {
+        breed: analysis.isMixedBreed && analysis.breedSecondary
+          ? `${analysis.breed} / ${analysis.breedSecondary} Mix`
+          : analysis.breed,
+        confidence: analysis.breedConfidence,
+        ageEstimateMonths: analysis.ageEstimateMonths,
+        estimatedWeight: weightEstimates[analysis.sizeCategory] || 35,
+        size: analysis.sizeCategory.replace("_", " "),
+        coatColor: analysis.coatColors?.join(", ") || "Unknown",
+      };
+
+      setAiResults(results);
       setFormData((prev) => ({
         ...prev,
-        breed: mockResults.breed,
-        weight: mockResults.estimatedWeight.toString(),
+        breed: results.breed,
+        weight: results.estimatedWeight.toString(),
       }));
       setStep("results");
-    }, 3000);
+    } catch (error) {
+      console.error("Error analyzing pet photo:", error);
+      // Fallback to form if analysis fails
+      alert("We couldn't analyze the photo. Please fill in the details manually.");
+      setStep("form");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
