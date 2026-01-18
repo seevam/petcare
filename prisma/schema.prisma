@@ -56,8 +56,8 @@ model Pet {
   // AI analysis data
   breedConfidence   Float?
   aiAnalysisData    Json?     // Store full AI response
-  coatType          String?   // "short", "long", "curly", "wire"
-  coatColors        String[]  // ["golden", "white"]
+  coatType          String?   @map("coat_type")   // "short", "long", "curly", "wire"
+  coatColors        String[]  @map("coat_colors") // ["golden", "white"]
 
   // Demographics
   dateOfBirth       DateTime?
