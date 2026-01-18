@@ -106,6 +106,14 @@ export default function AddPetPage() {
         ...prev,
         breed: results.breed,
         weight: results.estimatedWeight.toString(),
+        breedConfidence: analysis.breedConfidence,
+        breedSecondary: analysis.breedSecondary,
+        isMixedBreed: analysis.isMixedBreed,
+        ageEstimateMonths: analysis.ageEstimateMonths,
+        sizeCategory: analysis.sizeCategory,
+        coatType: analysis.coatType,
+        coatColors: analysis.coatColors,
+        aiAnalysisData: analysis,
       }));
       setStep("results");
     } catch (error) {
