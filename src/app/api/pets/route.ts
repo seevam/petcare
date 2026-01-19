@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs";
+import { auth, currentUser } from "@clerk/nextjs";
 import { prisma } from "@/lib/prisma";
 import { petSchema } from "@/lib/validators";
 
@@ -48,6 +48,30 @@ export async function POST(request: Request) {
 
     if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    // Ensure user exists in database (auto-create from Clerk if needed)
+    const clerkUser = await currentUser();
+    if (clerkUser) {
+      await prisma.user.upsert({
+        where: { id: userId },
+        update: {
+          email: clerkUser.emailAddresses[0]?.emailAddress || "",
+          name: clerkUser.firstName && clerkUser.lastName
+            ? `${clerkUser.firstName} ${clerkUser.lastName}`
+            : clerkUser.firstName || clerkUser.username || null,
+          imageUrl: clerkUser.imageUrl || null,
+          updatedAt: new Date(),
+        },
+        create: {
+          id: userId,
+          email: clerkUser.emailAddresses[0]?.emailAddress || "",
+          name: clerkUser.firstName && clerkUser.lastName
+            ? `${clerkUser.firstName} ${clerkUser.lastName}`
+            : clerkUser.firstName || clerkUser.username || null,
+          imageUrl: clerkUser.imageUrl || null,
+        },
+      });
     }
 
     const body = await request.json();
