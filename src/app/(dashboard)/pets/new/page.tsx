@@ -34,7 +34,27 @@ export default function AddPetPage() {
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const [aiResults, setAiResults] = useState<any>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    species: string;
+    breed: string;
+    dateOfBirth: string;
+    weight: string;
+    weightUnit: string;
+    gender: string;
+    microchipNumber: string;
+    isSpayedNeutered: string;
+    specialConditions: string;
+    isIndoor?: string;
+    breedSecondary?: string;
+    isMixedBreed?: boolean;
+    breedConfidence?: number;
+    ageEstimateMonths?: number;
+    sizeCategory?: string;
+    coatType?: string;
+    coatColors?: string[];
+    aiAnalysisData?: any;
+  }>({
     name: "",
     species: "DOG",
     breed: "",
