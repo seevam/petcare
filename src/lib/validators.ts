@@ -37,6 +37,8 @@ export const petSchema = z.object({
   isMixedBreed: z.boolean().optional(),
   breedConfidence: z.number().min(0).max(1).optional(),
   aiAnalysisData: z.any().optional(),
+  coatType: z.string().optional(),
+  coatColors: z.array(z.string()).optional(),
   isIndoor: z.boolean().optional(),
 });
 

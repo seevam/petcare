@@ -9,7 +9,7 @@ export async function analyzePetPhoto(imageUrl: string, species: "DOG" | "CAT") 
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
+      model: "gpt-4o",
       messages: [
         {
           role: "user",
@@ -28,7 +28,7 @@ export async function analyzePetPhoto(imageUrl: string, species: "DOG" | "CAT") 
 
               Be specific about breed names. For dogs, use AKC-recognized breed names. For cats, use CFA-recognized breed names.
 
-              Respond ONLY with valid JSON, no additional text.`,
+              IMPORTANT: Return ONLY raw JSON without markdown code fences or formatting. Do not wrap in \`\`\`json or any other markup.`,
             },
             {
               type: "image_url",
@@ -43,8 +43,14 @@ export async function analyzePetPhoto(imageUrl: string, species: "DOG" | "CAT") 
     const content = response.choices[0].message.content;
     if (!content) throw new Error("No response from OpenAI");
 
+    // Strip markdown code fences if present (```json ... ```)
+    const jsonContent = content
+      .replace(/```json\s*/g, "")
+      .replace(/```\s*/g, "")
+      .trim();
+
     // Parse JSON response
-    const analysis = JSON.parse(content);
+    const analysis = JSON.parse(jsonContent);
     return analysis;
   } catch (error) {
     console.error("Error analyzing pet photo:", error);
@@ -92,7 +98,9 @@ export async function generateDietPlan(
           - foodType (string)
           - proteinSource (string)
           - specialDiet (string or null)
-          - recommendations (detailed text)`,
+          - recommendations (detailed text)
+
+          IMPORTANT: Return ONLY raw JSON without markdown code fences or formatting. Do not wrap in \`\`\`json or any other markup.`,
         },
       ],
       max_tokens: 1000,
@@ -101,7 +109,13 @@ export async function generateDietPlan(
     const content = response.choices[0].message.content;
     if (!content) throw new Error("No response from OpenAI");
 
-    const dietPlan = JSON.parse(content);
+    // Strip markdown code fences if present (```json ... ```)
+    const jsonContent = content
+      .replace(/```json\s*/g, "")
+      .replace(/```\s*/g, "")
+      .trim();
+
+    const dietPlan = JSON.parse(jsonContent);
     return dietPlan;
   } catch (error) {
     console.error("Error generating diet plan:", error);

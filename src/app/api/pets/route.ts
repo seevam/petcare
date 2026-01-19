@@ -63,6 +63,8 @@ export async function POST(request: Request) {
         breedSecondary: validated.breedSecondary,
         isMixedBreed: validated.isMixedBreed || false,
         breedConfidence: validated.breedConfidence,
+        coatType: validated.coatType,
+        coatColors: validated.coatColors,
         dateOfBirth: validated.dateOfBirth ? new Date(validated.dateOfBirth) : null,
         ageEstimateMonths: validated.ageEstimateMonths,
         gender: validated.gender,
