@@ -127,17 +127,57 @@ export default function AddPetPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Implement API call to create pet
-    console.log("Creating pet:", formData);
+    try {
+      // Prepare data for API - convert types as needed
+      const petData = {
+        name: formData.name,
+        species: formData.species,
+        breed: formData.breed || undefined,
+        breedSecondary: formData.breedSecondary || undefined,
+        isMixedBreed: formData.isMixedBreed || false,
+        breedConfidence: formData.breedConfidence || undefined,
+        dateOfBirth: formData.dateOfBirth || undefined,
+        ageEstimateMonths: formData.ageEstimateMonths || undefined,
+        gender: formData.gender || undefined,
+        isSpayedNeutered: formData.isSpayedNeutered === "true" ? true : formData.isSpayedNeutered === "false" ? false : undefined,
+        weightLbs: formData.weight ? parseFloat(formData.weight) : undefined,
+        sizeCategory: formData.sizeCategory || undefined,
+        microchipNumber: formData.microchipNumber || undefined,
+        specialConditions: formData.specialConditions || undefined,
+        coatType: formData.coatType || undefined,
+        coatColors: formData.coatColors || undefined,
+        aiAnalysisData: formData.aiAnalysisData || undefined,
+        isIndoor: formData.species === "CAT" ? (formData.isIndoor === "true" ? true : formData.isIndoor === "false" ? false : undefined) : undefined,
+      };
 
-    // Simulate API call
-    setTimeout(() => {
+      // Call API to create pet
+      const response = await fetch("/api/pets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(petData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to create pet");
+      }
+
+      const createdPet = await response.json();
+      console.log("Pet created successfully:", createdPet);
+
+      // Show success screen
       setStep("success");
+
       // After celebration, redirect to pets list
       setTimeout(() => {
         router.push("/pets");
       }, 3000);
-    }, 1000);
+    } catch (error) {
+      console.error("Error creating pet:", error);
+      alert("Failed to create pet. Please try again.");
+    }
   };
 
   return (
